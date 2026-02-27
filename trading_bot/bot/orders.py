@@ -13,6 +13,7 @@ Provides a high-level 'OrderManager' that:
 from __future__ import annotations
 
 import json
+import time
 from dataclasses import dataclass, field
 from decimal import Decimal
 from typing import Any, Dict, Optional
@@ -212,6 +213,17 @@ class OrderManager:
         logger.debug("Request payload: %s", json.dumps(params, default=str))
         response = self._client.place_order(params)
         result = OrderResult.from_response(response)
+        
+        # MARKET orders should fill immediately, but sometimes response is 'NEW'
+        if result.status == "NEW":
+            logger.debug("Market order is NEW, fetching latest status for fill details...")
+            time.sleep(1)  # Brief wait for fill propagation
+            try:
+                updated_response = self._client.get_order(result.symbol, result.order_id)
+                result = OrderResult.from_response(updated_response)
+            except Exception as exc:
+                logger.warning("Could not fetch updated status for market order: %s", exc)
+
         logger.info("MARKET order result: %s", result.summary())
         return result
 
