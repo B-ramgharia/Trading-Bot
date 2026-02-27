@@ -1,13 +1,45 @@
 import React, { useState } from 'react';
 import { GlassCard } from '../Shared/GlassCard';
 import { cn } from '../../components/Shared/GlassCard';
+import { toast } from 'sonner';
 
 type OrderType = 'MARKET' | 'LIMIT' | 'STOP' | 'STOP_MARKET';
 type Side = 'BUY' | 'SELL';
 
-export const TradingTerminal: React.FC = () => {
+interface TradingTerminalProps {
+    onOrder?: (data: { side: Side; type: OrderType; quantity: number; symbol: string }) => void;
+}
+
+export const TradingTerminal: React.FC<TradingTerminalProps> = ({ onOrder }) => {
     const [side, setSide] = useState<Side>('BUY');
     const [type, setType] = useState<OrderType>('MARKET');
+    const [quantity, setQuantity] = useState<string>('');
+    const [price, setPrice] = useState<string>('');
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleSubmit = async () => {
+        if (!quantity || parseFloat(quantity) <= 0) {
+            toast.error('Invalid quantity');
+            return;
+        }
+
+        setIsLoading(true);
+
+        // Simulate execution delay
+        await new Promise(resolve => setTimeout(resolve, 800));
+
+        if (onOrder) {
+            onOrder({
+                side,
+                type,
+                quantity: parseFloat(quantity),
+                symbol: 'BTCUSDT'
+            });
+        }
+
+        setIsLoading(false);
+        setQuantity('');
+    };
 
     return (
         <GlassCard className="h-full flex flex-col gap-6">
@@ -72,6 +104,8 @@ export const TradingTerminal: React.FC = () => {
                     <label className="text-xs text-gray-500 mb-1.5 block uppercase tracking-wider font-semibold">Quantity (BTC)</label>
                     <input
                         type="number"
+                        value={quantity}
+                        onChange={(e) => setQuantity(e.target.value)}
                         placeholder="0.00"
                         className="w-full bg-white/5 border border-white/5 rounded-lg py-3 px-4 focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all text-white font-medium"
                     />
@@ -83,6 +117,8 @@ export const TradingTerminal: React.FC = () => {
                         <label className="text-xs text-gray-500 mb-1.5 block uppercase tracking-wider font-semibold">Price (USDT)</label>
                         <input
                             type="number"
+                            value={price}
+                            onChange={(e) => setPrice(e.target.value)}
                             placeholder="0.00"
                             className="w-full bg-white/5 border border-white/5 rounded-lg py-3 px-4 focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all text-white font-medium"
                         />
@@ -103,13 +139,17 @@ export const TradingTerminal: React.FC = () => {
 
                 {/* Action Button */}
                 <div className="pt-4">
-                    <button className={cn(
-                        "w-full py-4 rounded-xl font-bold uppercase tracking-widest shadow-lg transition-all active:scale-95",
-                        side === 'BUY'
-                            ? "bg-success hover:bg-success/90 shadow-success/10"
-                            : "bg-danger hover:bg-danger/90 shadow-danger/10"
-                    )}>
-                        {side} BTC
+                    <button
+                        onClick={handleSubmit}
+                        disabled={isLoading}
+                        className={cn(
+                            "w-full py-4 rounded-xl font-bold uppercase tracking-widest shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed",
+                            side === 'BUY'
+                                ? "bg-success hover:bg-success/90 shadow-success/10"
+                                : "bg-danger hover:bg-danger/90 shadow-danger/10"
+                        )}
+                    >
+                        {isLoading ? 'Processing...' : `${side} BTC`}
                     </button>
                     <div className="flex justify-between mt-3 text-xs text-gray-500 px-1">
                         <span>Available: 0.00 USDT</span>
