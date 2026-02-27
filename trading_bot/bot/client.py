@@ -95,9 +95,20 @@ class BinanceFuturesClient:
 
     # ── Signing helpers ───────────────────────────────────────────────────────
 
+    def get_server_time(self) -> int:
+        """Fetch current server time from Binance."""
+        response = self._session.get(f"{self._base_url}/fapi/v1/time", timeout=self._timeout)
+        return response.json()["serverTime"]
+
     def _sign(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """Append timestamp + recvWindow, then compute HMAC-SHA256 signature."""
-        params["timestamp"] = int(time.time() * 1000)
+        # Use server time to avoid sync issues (recvWindow errors)
+        try:
+            params["timestamp"] = self.get_server_time()
+        except Exception:
+            # Fallback to local time if server time fails
+            params["timestamp"] = int(time.time() * 1000)
+            
         params["recvWindow"] = REQUEST_WINDOW
         query_string = urlencode(params)
         signature = hmac.new(

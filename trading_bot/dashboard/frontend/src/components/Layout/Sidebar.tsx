@@ -20,7 +20,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLog
         <div className="w-64 h-screen glass border-r border-white/5 flex flex-col p-4 fixed left-0 top-0">
             <div className="flex items-center gap-3 px-2 mb-10">
                 <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg border border-white/10 ring-1 ring-primary/20">
-                    <img src="/logo.png" alt="Crypto Logo" className="w-full h-full object-cover" />
+                    <img src="logo.png" alt="Crypto Logo" className="w-full h-full object-cover" />
                 </div>
                 <h1 className="text-2xl font-black bg-gradient-to-r from-primary via-orange-400 to-yellow-500 bg-clip-text text-transparent tracking-tight">
                     Crypto
