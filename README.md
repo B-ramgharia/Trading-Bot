@@ -8,6 +8,8 @@ A Python CLI trading bot for placing orders on the **Binance USDT-M Futures Test
 
 | Feature | Description |
 |---|---|
+| **Testnet Base URL** | Configured to `https://testnet.binancefuture.com` |
+| **Tech Stack** | Logic: `requests` (direct REST) · UI: `React` + `FastAPI` |
 | **4 Order Types** | MARKET · LIMIT · STOP_MARKET · STOP (stop-limit) |
 | **HMAC-SHA256 Signing** | All signed requests follow Binance's authentication spec |
 | **Input Validation** | Symbol, side, quantity, price, and stop-price validated before submission |
